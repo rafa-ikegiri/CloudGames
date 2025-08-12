@@ -1,6 +1,7 @@
 ﻿using Core.Entity;
 using Core.Repository;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Infrastructure.Repository;
 
@@ -15,32 +16,45 @@ public class EFRepository<T> : IRepository<T> where T : EntityBase
         _dbSet = _context.Set<T>();
     }
 
-    public void Alterar(T entidade)
+    public async Task<IEnumerable<T>> GetByConditionAsync(Expression<Func<T, bool>> predicate) =>
+            await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
+
+    public async Task<T?> BuscarAsync(int id) =>
+        await _dbSet.FindAsync(id);
+
+    public async Task<T> AdicionarAsync(T entity)
     {
-        _dbSet.Update(entidade);
-        _context.SaveChanges();
+        _dbSet.Add(entity);
+        await _context.SaveChangesAsync();
+        return entity;
     }
 
-    public void Cadastrar(T entidade)
+    public async Task<T> AlterarAsync(T entity)
     {
-        entidade.DataCriacao = DateTime.Now;
-        _dbSet.Add(entidade);
-        _context.SaveChanges();
+        var result = await _dbSet.FindAsync(entity.Id);
+        if (result is null)
+            return null;
+
+        _context.Entry(result)
+            .CurrentValues
+            .SetValues(entity);
+
+        await _context.SaveChangesAsync();
+        return entity;
+
     }
 
-    public void Deletar(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        _dbSet.Remove(ObterPorID(id));
-        _context.SaveChanges();
+        var result = await _dbSet.FindAsync(id);
+        if (result is null)
+            return false;
+
+        _dbSet.Remove(result);
+        await _context.SaveChangesAsync();
+        return true;
+
     }
 
-    public T ObterPorID(int id)
-    {
-        return _dbSet.FirstOrDefault(entity => entity.Id == id);
-    }
-
-    public IList<T> ObterTodos()
-    {
-        return _dbSet.ToList();
-    }
+    public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
 }

@@ -1,6 +1,7 @@
-﻿using Core.Entity;
-using Core.Input;
+﻿using Core.Input;
 using Core.Repository;
+using Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CloudGamesAPI.Controllers;
@@ -9,94 +10,62 @@ namespace CloudGamesAPI.Controllers;
 [Route("/[controller]")]
 public class JogoController : ControllerBase
 {
-    private readonly IJogoRepository _jogoRepository;
+    private readonly JogoService _jogoService;
 
-    public JogoController(IJogoRepository jogoRepository)
+    public JogoController(JogoService jogoService)
     {
-        _jogoRepository = jogoRepository;
+        _jogoService = jogoService;
     }
 
 
     [HttpGet]
-    public IActionResult Get()
+    [Authorize(Roles = "Admin,User")]
+    public async Task<IActionResult> GetAll()
     {
-        try
-        {
-            return Ok(_jogoRepository.ObterTodos());
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e);
-        }
+        var games = await _jogoService.BuscarTodosJogos();
+        return Ok(games);
     }
 
     [HttpGet("{id:int}")]
-    public IActionResult Get([FromRoute] int id)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Get([FromRoute] int id)
     {
-        try
-        {
-            return Ok(_jogoRepository.ObterPorID(id));
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e);
-        }
+        var jogo = await _jogoService.GetByIdAsync(id);
+        if (jogo == null)
+            return NotFound("Jogo não encontrado.");
+        return Ok(jogo);
     }
 
     [HttpPost]
-    public IActionResult Post([FromBody] JogoInput input)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Post([FromBody] JogoInput input)
     {
         try
         {
-            var jogo = new Jogo()
-            {
-                Titulo = input.Titulo,
-                Genero = input.Genero,
-                Plataforma = input.Plataforma,
-                DtLancamento = input.DtLancamento,
-                Multiplayer = input.Multiplayer
-            };
-            _jogoRepository.Cadastrar(jogo);
-            return Ok();
-
+            var jogo = await _jogoService.CreateAsync(input);
+            return Ok(jogo);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return BadRequest(e);
+            return BadRequest(new { message = ex.Message });
         }
     }
 
-    [HttpPut]
-    public IActionResult Put([FromBody] JogoUpdateInput input)
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Update(int id, [FromBody] JogoUpdateInput jogoupdateinput)
     {
-        try
-        {
-            var jogo = _jogoRepository.ObterPorID(input.Id);
-            jogo.Titulo = input.Titulo;
-            jogo.Genero = input.Genero;
-            jogo.Plataforma = input.Plataforma;
-            jogo.DtLancamento = input.DtLancamento;
-            jogo.Multiplayer = input.Multiplayer;
-            _jogoRepository.Alterar(jogo);
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e);
-        }
+        var updated = await _jogoService.UpdateAsync(id, jogoupdateinput);
+        if (!updated) return NotFound("Jogo não encontrado.");
+        return NoContent();
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult Delete([FromRoute] int id)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
     {
-        try
-        {
-            _jogoRepository.Deletar(id);
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e);
-        }
+        var deleted = await _jogoService.DeleteAsync(id);
+        if (!deleted) return NotFound("Jogo não encontrado.");
+        return NoContent();
     }
 }

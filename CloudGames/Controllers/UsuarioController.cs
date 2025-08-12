@@ -1,6 +1,6 @@
-﻿using Core.Entity;
-using Core.Input;
-using Core.Repository;
+﻿using Core.Input;
+using Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CloudGamesAPI.Controllers;
@@ -9,92 +9,69 @@ namespace CloudGamesAPI.Controllers;
 [Route("/[controller]")]
 public class UsuarioController : ControllerBase
 {
-    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly UsuarioService _usuarioService;
 
-    public UsuarioController(IUsuarioRepository usuarioRepository)
+    public UsuarioController(UsuarioService usuarioService)
     {
-        _usuarioRepository = usuarioRepository;
+        _usuarioService = usuarioService;
     }
 
-
-    [HttpGet]
-    public IActionResult Get()
+    //Retorna Todos os usuário cadastrados
+    [HttpGet("admin")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<List<UsuarioInput>>> BuscarTodosUsuarios()
     {
-        try
-        {
-            return Ok(_usuarioRepository.ObterTodos());
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e);
-        }
+        var usuarios = await _usuarioService.BuscarTodosUsuarios() ;
+        return Ok(usuarios);
     }
 
+    //Retorna um usuário específico pelo ID
     [HttpGet("{id:int}")]
-    public IActionResult Get([FromRoute] int id)
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<UsuarioService>> Get([FromRoute] int id)
+    {
+        var usuario = await _usuarioService.GetByIdAsync(id);
+        if (usuario == null)
+            return NotFound($"Usuário com ID {id} não encontrado.");
+        return Ok(usuario);
+        
+    }
+
+    //Cadastra um novo usuário
+    [HttpPost("admin")]    
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Post([FromBody] UsuarioInput input)
     {
         try
         {
-            return Ok(_usuarioRepository.ObterPorID(id));
+            var usuario = await _usuarioService.RegisterAsync(input);
+            return Ok(usuario);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return BadRequest(e);
+            return BadRequest(new { message = ex.Message });
         }
     }
 
-    [HttpPost]
-    public IActionResult Post([FromBody] UsuarioInput input)
+    //Atualiza um usuário existente    
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<UsuarioService>> Put([FromBody] UsuarioUpdateInput input, int id)
     {
-        try
-        {
-            var usuario = new Usuario()
-            {
-                Nome = input.Nome,
-                Email = input.Email,
-                Senha = input.Senha,
-                IsAdmin = input.IsAdmin
-            };
-            _usuarioRepository.Cadastrar(usuario);
-            return Ok();
-
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e);
-        }
+        var usuario = await _usuarioService.UpdateAsync(id, input);
+        if (usuario == null)
+            return NotFound($"Usuário com ID {id} não encontrado para atualização.");
+        return Ok(usuario);
     }
 
-    [HttpPut]
-    public IActionResult Put([FromBody] UsuarioUpdateInput input)
-    {
-        try
-        {
-            var usuario = _usuarioRepository.ObterPorID(input.Id);
-            usuario.Nome = input.Nome;
-            usuario.Email = input.Email;
-            usuario.Senha = input.Senha;
-            usuario.IsAdmin = input.IsAdmin;
-            _usuarioRepository.Alterar(usuario);
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e);
-        }
-    }
-
+    //Deleta um usuário pelo ID        
     [HttpDelete("{id:int}")]
-    public IActionResult Delete([FromRoute] int id)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
     {
-        try
-        {
-            _usuarioRepository.Deletar(id);
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e);
-        }
+        var deletetar = await _usuarioService.DeleteAsync(id);
+        if (!deletetar)
+            return NotFound($"Usuário com ID {id} não encontrado para remoção.");
+        return Ok(new { deletetar });
     }
 }
