@@ -5,11 +5,11 @@ VisualStudioVersion = 17.14.36221.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudGamesAPI", "CloudGames\CloudGamesAPI.csproj", "{677F9632-FBA8-4C61-AD48-7F33AF146801}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core]\Core.csproj", "{34E5904B-CA18-4855-9520-7E5168C5E1F8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{C2EDFB29-0A33-49D2-941D-37ED264428F1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudGames.Test", "tests\CloudGames.Test\CloudGames.Test.csproj", "{2EF7A23F-1633-498D-A3B4-1C53F7297EB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{5ED06CAD-956C-C94D-BC0C-E89E30A887C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +21,6 @@ Global
 		{677F9632-FBA8-4C61-AD48-7F33AF146801}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{677F9632-FBA8-4C61-AD48-7F33AF146801}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{677F9632-FBA8-4C61-AD48-7F33AF146801}.Release|Any CPU.Build.0 = Release|Any CPU
-		{34E5904B-CA18-4855-9520-7E5168C5E1F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{34E5904B-CA18-4855-9520-7E5168C5E1F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{34E5904B-CA18-4855-9520-7E5168C5E1F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{34E5904B-CA18-4855-9520-7E5168C5E1F8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C2EDFB29-0A33-49D2-941D-37ED264428F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C2EDFB29-0A33-49D2-941D-37ED264428F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2EDFB29-0A33-49D2-941D-37ED264428F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +29,10 @@ Global
 		{2EF7A23F-1633-498D-A3B4-1C53F7297EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2EF7A23F-1633-498D-A3B4-1C53F7297EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2EF7A23F-1633-498D-A3B4-1C53F7297EB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ED06CAD-956C-C94D-BC0C-E89E30A887C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ED06CAD-956C-C94D-BC0C-E89E30A887C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ED06CAD-956C-C94D-BC0C-E89E30A887C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ED06CAD-956C-C94D-BC0C-E89E30A887C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
